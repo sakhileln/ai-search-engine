@@ -33,13 +33,14 @@ This project delivers a scalable, secure backend system for a search platform, l
     ```
 
 ## Architecture
-The system follows a microservices architecture, orchestrated via Kubernetes, with services communicating through an API gateway. Key components include:Service Discovery: Consul for dynamic service registration and health checks.
-- Messaging: Pluggable RabbitMQ or Kafka for asynchronous communication.
-- Database: Sharded PostgreSQL for scalability and data isolation.
-- Containerization: Docker for consistent deployments.
-- API Gateway: NGINX and Spring Cloud Gateway for routing, rate limiting, and TLS.
-- Monitoring: Prometheus, Grafana, and ELK Stack (planned) for observability.
-- CI/CD: Jenkins for automated builds, tests, and deployments.
+The system follows a microservices architecture, orchestrated via Kubernetes, with services communicating through an API gateway. Key components include:
+- **Service Discovery**: Consul for dynamic service registration and health checks.
+- **Messaging**: Pluggable RabbitMQ or Kafka for asynchronous communication.
+- **Database**: Sharded PostgreSQL for scalability and data isolation.
+- **Containerization**: Docker for consistent deployments.
+- **API Gateway**: NGINX and Spring Cloud Gateway for routing, rate limiting, and TLS.
+- **Monitoring**: Prometheus, Grafana, and ELK Stack (planned) for observability.
+- **CI/CD**: Jenkins for automated builds, tests, and deployments.
 
 ## Microservices
 | Service               | Purpose                                      | Key Tech / Security Focus                       |
