@@ -1,4 +1,5 @@
 # ai search engine
+
 An AI-powered search and question-answering platform that combines web search, natural language processing, and large language models to deliver concise, accurate, and context-aware answers to user queries. Unlike traditional search engines, this focuses on providing direct, conversational responses with sourced references, making it ideal for research and knowledge discovery. This project draws inspiration from Perplexity's approach to intelligent search and aims to replicate a secure, scalable backend to support similar query processing, data handling, and service orchestration in a production environment.
 
 ## Table of Contents
