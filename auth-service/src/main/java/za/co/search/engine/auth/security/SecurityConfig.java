@@ -1,4 +1,3 @@
-
 package za.co.search.engine.auth.security;
 
 import org.springframework.context.annotation.Bean;
