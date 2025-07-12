@@ -25,3 +25,12 @@ replay_pid*
 
 # IntelliJ files
 .idea
+
+# Project Settinfs
+query-service/.classpath
+query-service/.project
+query-service/.settings/
+auth-service/.classpath
+auth-service/.project
+auth-service/.settings/
+
