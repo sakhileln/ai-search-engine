@@ -1,6 +1,5 @@
-version: '3.8'
-
 services:
+  # === Infrastructure ===
   consul:
     image: consul:1.15
     ports:
@@ -16,7 +15,7 @@ services:
       POSTGRES_USER: auth_user
       POSTGRES_PASSWORD: auth_password
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - postgres_auth_data:/var/lib/postgresql/data
 
@@ -55,7 +54,109 @@ services:
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
 
+  # === Application Services ===
+
+  auth-service:
+    build:
+      context: ./auth-service
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres-auth
+      - rabbitmq
+      - redis
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CONFIG_IMPORT=consul:
+      - SPRING_APPLICATION_NAME=auth-service
+
+  config-service:
+    build:
+      context: ./config-service
+    ports:
+      - "8082:8080"
+    depends_on:
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=config-service
+
+  discovery-service:
+    build:
+      context: ./discovery-service
+    ports:
+      - "8761:8080"
+    depends_on:
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=discovery-service
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - consul
+      - auth-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=gateway-service
+
+  notification-service:
+    build:
+      context: ./notification-service
+    ports:
+      - "8085:8080"
+    depends_on:
+      - rabbitmq
+      - redis
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=notification-service
+
+  data-service:
+    build:
+      context: ./data-service
+    ports:
+      - "8086:8080"
+    depends_on:
+      - postgres-data
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=data-service
+
+  query-service:
+    build:
+      context: ./query-service
+    ports:
+      - "8087:8080"
+    depends_on:
+      - postgres-data
+      - elasticsearch
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=query-service
+
+  search-service:
+    build:
+      context: ./search-service
+    ports:
+      - "8088:8080"
+    depends_on:
+      - elasticsearch
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=search-service
+
 volumes:
   postgres_auth_data:
   postgres_data_data:
   elasticsearch_data:
+
