@@ -23,6 +23,8 @@ This project delivers a scalable, secure backend system for a search platform, l
 - Start Kubernetes cluster (e.g., Minikube):
     ```bash
     minikube start
+    sudo docker-compose up --build -d
+    docker-compose logs -f auth-service
     ```
 - Deploy services:
     ```bash
