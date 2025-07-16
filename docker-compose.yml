@@ -1,0 +1,162 @@
+services:
+  # === Infrastructure ===
+  consul:
+    image: consul:1.15
+    ports:
+      - "8500:8500"
+    command: "consul agent -dev -ui -client=0.0.0.0"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+
+  postgres-auth:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_password
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+
+  postgres-data:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: data_db
+      POSTGRES_USER: data_user
+      POSTGRES_PASSWORD: data_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq_user
+      RABBITMQ_DEFAULT_PASS: rabbitmq_password
+
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+  # === Application Services ===
+
+  auth-service:
+    build:
+      context: ./auth-service
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres-auth
+      - rabbitmq
+      - redis
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CONFIG_IMPORT=consul:
+      - SPRING_APPLICATION_NAME=auth-service
+
+  config-service:
+    build:
+      context: ./config-service
+    ports:
+      - "8082:8080"
+    depends_on:
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=config-service
+
+  discovery-service:
+    build:
+      context: ./discovery-service
+    ports:
+      - "8761:8080"
+    depends_on:
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=discovery-service
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - consul
+      - auth-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=gateway-service
+
+  notification-service:
+    build:
+      context: ./notification-service
+    ports:
+      - "8085:8080"
+    depends_on:
+      - rabbitmq
+      - redis
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=notification-service
+
+  data-service:
+    build:
+      context: ./data-service
+    ports:
+      - "8086:8080"
+    depends_on:
+      - postgres-data
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=data-service
+
+  query-service:
+    build:
+      context: ./query-service
+    ports:
+      - "8087:8080"
+    depends_on:
+      - postgres-data
+      - elasticsearch
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=query-service
+
+  search-service:
+    build:
+      context: ./search-service
+    ports:
+      - "8088:8080"
+    depends_on:
+      - elasticsearch
+      - consul
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_APPLICATION_NAME=search-service
+
+volumes:
+  postgres_auth_data:
+  postgres_data_data:
+  elasticsearch_data:
+
