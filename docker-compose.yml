@@ -68,7 +68,7 @@ services:
       - consul
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_CONFIG_IMPORT=consul:
+      - "SPRING_CONFIG_IMPORT=consul:"
       - SPRING_APPLICATION_NAME=auth-service
 
   config-service:
