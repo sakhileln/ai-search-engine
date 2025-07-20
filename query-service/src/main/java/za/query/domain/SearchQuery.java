@@ -1,8 +1,8 @@
-package za.co.search.engine.query.domain;
+package za.query.domain;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import za.co.search.engine.shared.domain.DomainEvent;
+import za.shared.domain.DomainEvent;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -17,8 +17,8 @@ public class SearchQuery {
     private final String clientIpAddress;
     private final List<String> searchFilters;
 
-    public SearchQuery(String userId, String rawQuery, QueryType queryType, 
-                      String clientIpAddress, List<String> searchFilters) {
+    public SearchQuery(String userId, String rawQuery, QueryType queryType,
+            String clientIpAddress, List<String> searchFilters) {
         this.queryId = UUID.randomUUID().toString();
         this.userId = userId;
         this.rawQuery = rawQuery;
@@ -35,14 +35,37 @@ public class SearchQuery {
     }
 
     // Getters
-    public String getQueryId() { return queryId; }
-    public String getUserId() { return userId; }
-    public String getRawQuery() { return rawQuery; }
-    public String getSanitizedQuery() { return sanitizedQuery; }
-    public QueryType getQueryType() { return queryType; }
-    public Instant getTimestamp() { return timestamp; }
-    public String getClientIpAddress() { return clientIpAddress; }
-    public List<String> getSearchFilters() { return searchFilters; }
+    public String getQueryId() {
+        return queryId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getRawQuery() {
+        return rawQuery;
+    }
+
+    public String getSanitizedQuery() {
+        return sanitizedQuery;
+    }
+
+    public QueryType getQueryType() {
+        return queryType;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    public String getClientIpAddress() {
+        return clientIpAddress;
+    }
+
+    public List<String> getSearchFilters() {
+        return searchFilters;
+    }
 
     public static class QuerySubmittedEvent extends DomainEvent {
         private final String queryId;
@@ -56,8 +79,16 @@ public class SearchQuery {
             this.queryType = queryType;
         }
 
-        public String getQueryId() { return queryId; }
-        public String getSanitizedQuery() { return sanitizedQuery; }
-        public QueryType getQueryType() { return queryType; }
+        public String getQueryId() {
+            return queryId;
+        }
+
+        public String getSanitizedQuery() {
+            return sanitizedQuery;
+        }
+
+        public QueryType getQueryType() {
+            return queryType;
+        }
     }
 }
