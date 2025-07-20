@@ -21,53 +21,52 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableGlobalMethodSecurity
 public class SecurityConfig {
-  
-  private final String api_version = "/api/v1";
 
-  @Autowired
-  private CustomUserDetailsService userDetailsService;
+    private final String api_version = "/api/v1";
 
-  @Autowired
-  private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-  @Bean
-  public DaoAuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    authProvider.setUserDetialsService(userDetailsService);
-    authProvider.setPasswordEncoder(PasswordEncoder);
-    return authProvider;
-  }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-  @Bean
-  public AuthenticationManager authenticationManager(
-      AuthenticationConfiguration authConfig) throws Exception {
-    return authConfig.getAuthenticationManager();
-  }
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.cors().and().csrf().disable()
-      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-      .and()
-      .authorizeHttpRequests(authz -> authz
-          .requestMatches(api_version + "/auth/signin").permitAll()
-          .requestMatches(api_version + "/auth/signup").permitAll()
-          .requestMatches(api_version + "/auth/verfiy-email").permitAll()
-          .requestMatches(api_version + "/auth/forgot-password").permitAll()
-          .requestMatches(api_version + "/auth/reset-password").permitAll()
-          .requestMatches(api_version + "/actuator/**").permitAll()
-          .anyRequest().authenticated()
-      );
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
 
-    http.authenticationProvider(authenticationProvider());
-    http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.cors().and().csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers(api_version + "/auth/signin").permitAll()
+                        .requestMatchers(api_version + "/auth/signup").permitAll()
+                        .requestMatchers(api_version + "/auth/verfiy-email").permitAll()
+                        .requestMatchers(api_version + "/auth/forgot-password").permitAll()
+                        .requestMatchers(api_version + "/auth/reset-password").permitAll()
+                        .requestMatchers(api_version + "/actuator/**").permitAll()
+                        .anyRequest().authenticated());
 
-    return http.build();
-  }
+        http.authenticationProvider(authenticationProvider());
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
 
 }
