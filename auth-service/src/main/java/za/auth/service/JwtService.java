@@ -17,68 +17,68 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-  
-  @Value("${jwt.service}")
-  private String secret;
 
-  @Value("${jwt.expiration}")
-  private Long jwtExperation;
+    @Value("${jwt.service}")
+    private String secret;
 
-  @Value("${jwt.refresh-token.expiration}")
-  private Long refreshExpiration;
+    @Value("${jwt.expiration}")
+    private Long jwtExperation;
 
-  public String extractUsername(String token) {
-    return extractClaim(token, Claims::getSubject);
-  }
+    @Value("${jwt.refresh-token.expiration}")
+    private Long refreshExpiration;
 
-  public String extractClaim(String token, Function<Claims, T> claimsResolver) {
-    final Claims claims = extractAllClaims(token);
-    return claimsResolver.apply(claims);
-  }
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
 
-  public String generateToken(UserDetails userDetails) {
-    return generateToken(new HashMap<>(), userDetails);
-  }
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
 
-  public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-    return buildToken(new HashMap<>(), userDetails, refreshExpiration);
-  }
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails);
+    }
 
-  private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
-    return Jwts
-            .builder()
-            .setClaims(extraClaims)
-            .setSubject(userDetails.getUsername())
-            .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + expiration))
-            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-            .compact();
-  }
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+    }
 
-  public boolean isTokenValid(String token, UserDetails userDetails) {
-    final String username = extractUsername(token);
-    return (username.equals(UserDetails.getUsername())) && !isTokenExpired(token);
-  }
+    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
+        return Jwts
+                .builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
 
-  private boolean isTokenExpired(String token) {
-    return extractExpiration(token).before(new Date());
-  }
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
 
-  private Date extractExpiration(String token) {
-    return extractClaims(token, Claims::getExpiration);
-  }
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
 
-  private Claims extractAllClaims(String token) {
-    return Jws
-            .parserBuilder()
-            .setSigningKey(getSignInKey())
-            .build()
-            .parseClaimsJwts(token)
-            .getBody();
-  }
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
 
-  private SecretKey getSignInKey() {
-    byte[] keyBytes = secret.getBytes();
-    return Keys.hmacShaKeyFor(keyBytes);
-  }
+    private Claims extractAllClaims(String token) {
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(getSignInKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    private SecretKey getSignInKey() {
+        byte[] keyBytes = secret.getBytes();
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
 }
