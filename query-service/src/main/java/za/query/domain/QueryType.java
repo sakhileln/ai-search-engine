@@ -1,4 +1,4 @@
-package za.co.search.engine.query.domain;
+package za.query.domain;
 
 public enum QueryType {
     GENERAL_SEARCH,
