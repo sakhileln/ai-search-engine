@@ -34,3 +34,13 @@ auth-service/.classpath
 auth-service/.project
 auth-service/.settings/
 
+# Service jar files
+query-service/target/
+auth-service/target/
+notification-service/target/
+discovery-service/target/
+data-service/target/
+config-service/target/
+gateway-service/target/
+search-service/target/
+shared-domain/target/
