@@ -13,137 +13,208 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "users",
-      uniqueConstraints = {
+@Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email")
-      })
+})
 public class User implements UserDetails {
-  
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
 
-  @NotBlank
-  @Size(max = 50)
-  @Email
-  private String email;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @NotBlank
-  @Size(max = 120)
-  private String password;
+    @NotBlank
+    @Size(max = 50)
+    @Email
+    private String email;
 
-  @NotBlank
-  @Size(max = 50)
-  private String firstName;
+    @NotBlank
+    @Size(max = 120)
+    private String password;
 
-  @NotBlank
-  @Size(size = 50)
-  private String lastName;
+    @NotBlank
+    @Size(max = 50)
+    private String firstName;
 
-  @Enumerated(EnumType.STRING)
-  private Role role = Role.USER;
+    @NotBlank
+    @Size(max = 50)
+    private String lastName;
 
-  private boolean enabled = false;
-  private boolean accountNonExpired = true;
-  private boolean accountNonLocked = true;
-  private boolean credentialsNonExpired = true;
-  private boolean mfaEnabled = false;
-  private String mfaSecret;
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
 
-  @Column(name = "created_at")
-  private LocalDateTime createdAt;
+    private boolean enabled = false;
+    private boolean accountNonExpired = true;
+    private boolean accountNonLocked = true;
+    private boolean credentialsNonExpired = true;
+    private boolean mfaEnabled = false;
+    private String mfaSecret;
 
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-  @PrePersist
-  protected void onCreate() {
-    createdAt = LocalDateTime.now();
-    updatedAt = LocalDateTime.now();
-  }
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
-  @PreUpdate
-  protected void onUpdate() {
-    updatedAt = LocalDateTime.now();
-  }
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
 
-  public enum Role {
-    USER, ADMIN, MODERATOR
-  }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
-  // constructors
-  public User() {}
+    public enum Role {
+        USER, ADMIN, MODERATOR
+    }
 
-  public User(String email, String password, String firstName, String lastName) {
-    this.email = email;
-    this.password = password;
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
+    // constructors
+    public User() {
+    }
 
-  // UserDetails implementation
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
-  }
+    public User(String email, String password, String firstName, String lastName) {
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 
-  @Override
-  public String getUsername() {
-    return email;
-  }
+    // UserDetails implementation
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return accountNonExpired;
-  }
+    @Override
+    public String getUsername() {
+        return email;
+    }
 
-  @Override
-  public boolean isAccountNonLocked() {
-    return accountNonLocked;
-  }
+    @Override
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
+    }
 
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return credentialsNonExpired;
-  }
+    @Override
+    public boolean isAccountNonLocked() {
+        return accountNonLocked;
+    }
 
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
 
-  // getters and setters
-  //
-  public Long getId() { return id; }
-  public void setId(Long id) { this.id = id; }
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
 
-  public String getEmail() { return email; }
-  public void setEmail(String email) { this.email = email; }
+    // getters and setters
+    //
+    public Long getId() {
+        return id;
+    }
 
-  public String getPassword() { return password; }
-  public void setPassword(String password) { this.password = password; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-  public String getFirstName() { return firstName; }
-  public void setFirstName(String firstName) { this.firstName = firstName; }
+    public String getEmail() {
+        return email;
+    }
 
-  public String getLastName() { return lastName; }
-  public void setLastName(String lastName) { this.lastName = lastName; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-  public Role getRole() { return role; }
-  public void setRole(Role role) { this.role = role; }
+    public String getPassword() {
+        return password;
+    }
 
-  public void setEnabled(boolean enabled) { this.enabled = enabled; }
-  public void setAccountNonExpired(boolean accountNonExpired) { this.accountNonExpired = accountNonExpired; }
-  public void setAccountNonLocked(boolean accountNonLocked) { this.accountNonLocked = accountNonLocked; }
-  public void setCredentialsNonExpired(boolean credentialsNonExpired) { this.credentialsNonExpired = credentialsNonExpired; }
-  
-  public boolean isMfaEnabled() { return mfaEnabled; }
-  public void setMfaEnabled(boolean mfaEnabled) { this.mfaEnabled = mfaEnabled; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-  public String getMfaSecret() { return mfaSecret; }
-  public void setMfaSecret(String mfaSecret) { this.mfaSecret = mfaSecret; }
+    public String getFirstName() {
+        return firstName;
+    }
 
-  public LocalDateTime getCreatedAt() { return createdAt; }
-  public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setAccountNonExpired(boolean accountNonExpired) {
+        this.accountNonExpired = accountNonExpired;
+    }
+
+    public void setAccountNonLocked(boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
+    }
+
+    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+        this.credentialsNonExpired = credentialsNonExpired;
+    }
+
+    public boolean isMfaEnabled() {
+        return mfaEnabled;
+    }
+
+    public void setMfaEnabled(boolean mfaEnabled) {
+        this.mfaEnabled = mfaEnabled;
+    }
+
+    public String getMfaSecret() {
+        return mfaSecret;
+    }
+
+    public void setMfaSecret(String mfaSecret) {
+        this.mfaSecret = mfaSecret;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setLocked(boolean locked) {
+        this.accountNonLocked = !locked;
+    }
+
+    public void setCreatedAt(java.time.LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(java.time.LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public boolean isLocked() {
+        return !this.accountNonLocked;
+    }
 }
