@@ -1,12 +1,12 @@
 package za.auth.service;
 
-import com.auth.dto.AuthResponse;
-import com.auth.dto.LoginRequest;
-import com.auth.dto.SignupRequest;
-import com.auth.entity.RefreshToken;
-import com.auth.entity.User;
-import com.auth.repository.RefreshTokenRepository;
-import com.auth.repository.UserRepository;
+import za.auth.dto.AuthResponse;
+import za.auth.dto.LoginRequest;
+import za.auth.dto.SignupRequest;
+import za.auth.entity.RefreshToken;
+import za.auth.entity.User;
+import za.auth.repository.RefreshTokenRepository;
+import za.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -64,9 +64,7 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
-                        request.getPassword()
-                )
-        );
+                        request.getPassword()));
 
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -88,6 +86,46 @@ public class AuthService {
         refreshToken.setCreatedAt(LocalDateTime.now());
 
         return refreshTokenRepository.save(refreshToken);
+    }
+
+    // Add missing methods for controller compatibility
+    public AuthResponse registerUser(SignupRequest request) {
+        return signup(request);
+    }
+
+    public AuthResponse authenticateUser(LoginRequest request) {
+        return login(request);
+    }
+
+    public AuthResponse refreshToken(String token) {
+        // Stub: implement refresh logic as needed
+        return AuthResponse.builder().accessToken("stub").refreshToken(token).build();
+    }
+
+    public AuthResponse logout(String token) {
+        // Stub: implement logout logic as needed
+        return AuthResponse.builder().accessToken("").refreshToken("").build();
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
+    public User updateUser(String email, User userDetails) {
+        // Stub: implement update logic as needed
+        return userDetails;
+    }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
+    public void deleteUser(String email) {
+        // Stub: implement delete logic as needed
+    }
+
+    public java.util.List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     // Helper class to wrap User entity for Spring Security
@@ -130,7 +168,8 @@ public class AuthService {
 
         @Override
         public java.util.Collection<? extends org.springframework.security.core.GrantedAuthority> getAuthorities() {
-            return java.util.Collections.singletonList(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER"));
+            return java.util.Collections
+                    .singletonList(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER"));
         }
     }
 }
