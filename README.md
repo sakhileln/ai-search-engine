@@ -20,12 +20,15 @@ This project delivers a scalable, secure backend system for a search platform, l
     git clone https://github.com/sakhileln/ai-search-engine.git
     cd ai-search-engine
     ```
+- Run the project
+  ```bash
+  mvn clean install -DskipTests
+  sudo docker-compose up --build -d
+  docker-compose logs -f auth-service
+  ```
 - Start Kubernetes cluster (e.g., Minikube):
     ```bash
-    minikube start
-    mvn clean install -DskipTests
-    sudo docker-compose up --build -d
-    docker-compose logs -f auth-service
+    minikube start  
     ```
 - Deploy services:
     ```bash
