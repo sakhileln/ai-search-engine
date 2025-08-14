@@ -1,0 +1,4 @@
+za/query/domain/QueryType.class
+za/query/domain/SearchQuery$QuerySubmittedEvent.class
+za/co/search/engine/query/QueryServiceApplication.class
+za/query/domain/SearchQuery.class
