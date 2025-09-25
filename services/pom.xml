@@ -19,6 +19,13 @@
         <spring-boot.version>3.2.0</spring-boot.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
         <testcontainers.version>1.19.3</testcontainers.version>
+        
+        <!-- gRPC and Protocol Buffers -->
+        <grpc.version>1.59.0</grpc.version>
+        <protobuf.version>3.24.4</protobuf.version>
+        <protoc.version>3.24.4</protoc.version>
+        <grpc-spring-boot.version>2.15.0.RELEASE</grpc-spring-boot.version>
+        <grpc-netty-shaded.version>1.59.0</grpc-netty-shaded.version>
     </properties>
 
     <modules>
@@ -59,6 +66,53 @@
         </dependencies>
     </dependencyManagement>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            <!-- gRPC Dependencies -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>${grpc.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-bom</artifactId>
+                <version>${protobuf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-spring-boot-starter</artifactId>
+                <version>${grpc-spring-boot.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -67,7 +121,85 @@
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
                 </plugin>
+                
+                <!-- Protocol Buffers Plugin -->
+                <plugin>
+                    <groupId>org.xolstice.maven.plugins</groupId>
+                    <artifactId>protobuf-maven-plugin</artifactId>
+                    <version>0.6.1</version>
+                    <configuration>
+                        <protocArtifact>com.google.protobuf:protoc:${protoc.version}:exe:${os.detected.classifier}</protocArtifact>
+                        <pluginId>grpc-java</pluginId>
+                        <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+                        <protoSourceRoot>${project.basedir}/../../proto</protoSourceRoot>
+                        <outputDirectory>${project.build.directory}/generated-sources/protobuf/java</outputDirectory>
+                        <clearOutputDirectory>false</clearOutputDirectory>
+                        <protocPlugins>
+                            <protocPlugin>
+                                <id>grpc-java</id>
+                                <groupId>io.grpc</groupId>
+                                <artifactId>protoc-gen-grpc-java</artifactId>
+                                <version>${grpc.version}</version>
+                                <mainClass>io.grpc.protocgen.gateway.GatewayGenerator</mainClass>
+                            </protocPlugin>
+                        </protocPlugins>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>compile-custom</goal>
+                                <goal>test-compile</goal>
+                                <goal>test-compile-custom</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
+        
+        <plugins>
+            <!-- Add protobuf-maven-plugin to all modules -->
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>os-specific</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <os.detected.classifier>windows-x86_64</os.detected.classifier>
+            </properties>
+        </profile>
+        <profile>
+            <id>linux-specific</id>
+            <activation>
+                <os>
+                    <family>linux</family>
+                </os>
+            </activation>
+            <properties>
+                <os.detected.classifier>linux-x86_64</os.detected.classifier>
+            </properties>
+        </profile>
+        <profile>
+            <id>mac-specific</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <os.detected.classifier>osx-x86_64</os.detected.classifier>
+            </properties>
+        </profile>
+    </profiles>
 </project>
