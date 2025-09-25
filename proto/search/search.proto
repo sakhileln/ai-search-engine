@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package ai.search.search;
+
+import "common/common.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "ai.search.search";
+option java_outer_classname = "SearchProto";
+
+service SearchService {
+  // Search operations
+  rpc Search(SearchRequest) returns (SearchResponse);
+  rpc StreamSearch(SearchRequest) returns (stream SearchResult);
+  rpc GetDocument(GetDocumentRequest) returns (Document);
+  
+  // Index operations
+  rpc IndexDocument(IndexDocumentRequest) returns (ai.search.common.StandardResponse);
+  rpc DeleteDocument(DeleteDocumentRequest) returns (ai.search.common.StandardResponse);
+  
+  // Suggestions
+  rpc GetSuggestions(SuggestionRequest) returns (SuggestionResponse);
+  
+  // Health check
+  rpc Check(ai.search.common.HealthCheckRequest) returns (ai.search.common.HealthCheckResponse);
+}
+
+// Search request/response
+message SearchRequest {
+  string query = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  repeated string filters = 4;
+  repeated Sort sorts = 5;
+  map<string, string> context = 6;
+}
+
+message SearchResponse {
+  repeated SearchResult results = 1;
+  ai.search.common.Pagination pagination = 2;
+  map<string, FacetResult> facets = 3;
+  ai.search.common.Error error = 4;
+}
+
+message SearchResult {
+  string id = 1;
+  string title = 2;
+  string content = 3;
+  string url = 4;
+  map<string, string> metadata = 5;
+  float score = 6;
+  repeated string highlights = 7;
+}
+
+// Document operations
+message GetDocumentRequest {
+  string id = 1;
+}
+
+message IndexDocumentRequest {
+  Document document = 1;
+  bool upsert = 2;
+}
+
+message DeleteDocumentRequest {
+  string id = 1;
+}
+
+// Document representation
+message Document {
+  string id = 1;
+  string title = 2;
+  string content = 3;
+  string url = 4;
+  map<string, string> metadata = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// Suggestions
+message SuggestionRequest {
+  string prefix = 1;
+  int32 max_suggestions = 2;
+  map<string, string> context = 3;
+}
+
+message SuggestionResponse {
+  repeated string suggestions = 1;
+  ai.search.common.Error error = 2;
+}
+
+// Supporting types
+message Sort {
+  string field = 1;
+  bool ascending = 2;
+}
+
+message FacetResult {
+  map<string, int64> counts = 1;
+}
