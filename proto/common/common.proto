@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package ai.search.common;
+
+option java_multiple_files = true;
+option java_package = "ai.search.common";
+option java_outer_classname = "CommonProto";
+
+// Standard error response
+message Error {
+  string code = 1;
+  string message = 2;
+  map<string, string> metadata = 3;
+}
+
+// Standard pagination
+message Pagination {
+  int32 page = 1;
+  int32 page_size = 2;
+  int64 total = 3;
+}
+
+// Standard sorting
+message Sort {
+  string field = 1;
+  bool ascending = 2;
+}
+
+// Empty response
+message Empty {}
+
+// Standard response with error handling
+message StandardResponse {
+  bool success = 1;
+  Error error = 2;
+}
+
+// Health check
+message HealthCheckRequest {
+  string service = 1;
+}
+
+message HealthCheckResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+    SERVICE_UNKNOWN = 3;
+  }
+  ServingStatus status = 1;
+}

@@ -1,0 +1,57 @@
+# gRPC Server Configuration
+grpc:
+  server:
+    port: 6565  # Default gRPC port for auth service
+    enable-reflection: true  # Enable gRPC server reflection for testing
+    security:
+      enabled: false  # Set to true and configure SSL for production
+    
+    # Keepalive settings
+    keep-alive-time: 30s
+    keep-alive-timeout: 10s
+    permit-keep-alive-time: 10s
+    permit-keep-alive-without-calls: true
+    
+    # Flow control settings
+    flow-control-window: 1048576  # 1MB
+    max-inbound-message-size: 10485760  # 10MB
+    max-inbound-metadata-size: 8192  # 8KB
+
+# gRPC Client Configuration
+grpc:
+  client:
+    # Search Service
+    search-service:
+      host: ${SEARCH_SERVICE_HOST:localhost}
+      port: ${SEARCH_SERVICE_GRPC_PORT:6566}
+      
+    # Data Service  
+    data-service:
+      host: ${DATA_SERVICE_HOST:localhost}
+      port: ${DATA_SERVICE_GRPC_PORT:6567}
+    
+    # Common client settings
+    max-inbound-message-size: 10485760  # 10MB
+    keepAliveTime: 30s
+    keepAliveTimeout: 10s
+
+# gRPC Load Balancing
+spring:
+  cloud:
+    loadbalancer:
+      grpc:
+        enabled: true
+        health-check:
+          enabled: true
+          interval: 30s
+          timeout: 5s
+
+# gRPC Health Check Management
+management:
+  health:
+    grpc:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+      show-components: always

@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: query-service
+  labels:
+    app: query-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: query-service
+  template:
+    metadata:
+      name: query-service
+      labels:
+        app: query-service
+    spec:
+      containers:
+        - name: query-service
+          image: africa-south1-docker.pkg.dev/{{PROJECT_ID}}/ai-search-engine/query-service:latest
+          ports:
+            - containerPort: 8087
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: query-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8087
+      targetPort: 8087
+  selector:
+    app: query-service
